@@ -2,7 +2,7 @@
 geometry: margin=1in
 ---
 
-# Week 4 Notes
+# 09/16/2025
 ## STL: Standard Template Library
 Has three fundamental pillars:
 
@@ -121,7 +121,7 @@ int main() {
 - Iterators are used under the hood in loops
 
 ### Ranks
-In an array, ranks == index
+- In an array, ranks == index
 - For other data types, we use ranks to talk about the i'th element
 
 ### STL and Iterators
