@@ -177,3 +177,69 @@ public:
     - Pragmatically: code reuse
     - In Theory: Type refinements (subtyping through subclasses)
 
+### Hierarchy
+- With each specialization
+    - Requirements grow
+    - The set of entities that meet those requirements shrink
+- Specialization is akin to
+    - Making subsets
+    - Making subtypes
+
+### Requirements
+- Can take different forms
+- Mainly:
+    1. Attributes
+    2. Specific behaviors
+- ex. For `Car`: Attribute of four wheels, behavior of electric charging or gas
+
+### Subtyping
+- Let A, B be two types
+    - We write A <: B to state that A is a subtype of B
+- ex. A = Car, B = Vehicle, A <: B 
+- Whenever A <: B, anytime a B is expected, one can provide an A
+    - In other words, A is a subtype/subset of B, therefore **every instance of A is also an instance of B**
+
+*Vehicles and Cars Code Example*
+`inheritance/vehicles.h`
+```cpp
+#pragma once
+#include <iostream>
+
+class Vehicle {
+public:
+    Vehicle() {}
+    void print() {
+        cout << "I (" << this << ") am a vehicle!" << endl;
+    }
+}
+
+class Car: public Vehicle { // Inheritance
+public:
+    Car() {}
+    void print() {
+        cout << "I (" << this << ") am a car!" << endl;
+    }
+}
+```
+
+`inheritance/main.cpp`
+```cpp
+#include "vehicles.h"
+
+void foo(Vehicle& v) {
+    v.print();
+}
+
+int main() {
+    Vehicle v;
+    Car c;
+
+    v.print();
+    c.print();
+
+    foo(v);
+    foo(c);
+
+    return 0;
+}
+```
