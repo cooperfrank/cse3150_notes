@@ -196,6 +196,8 @@ public:
 - Let A, B be two types
     - We write A <: B to state that A is a subtype of B
 - ex. A = Car, B = Vehicle, A <: B 
+
+#### Subsumption
 - Whenever A <: B, anytime a B is expected, one can provide an A
     - In other words, A is a subtype/subset of B, therefore **every instance of A is also an instance of B**
 
@@ -243,3 +245,68 @@ int main() {
     return 0;
 }
 ```
+
+#### Example Analysis: Subsumption
+- Here `Car` is inheriting from `Vehicle`; this is the syntax
+- Both calls to foo are fine so long as subsumption is present
+    - Even though foo expects a vehicle, we can pass a car
+    - Object identity (address) is preserved
+- Nothing under the hood is being changed about the car
+
+So why do we get "I'm a vehicle" from foo(car)?
+
+- This is called polymorphism
+    - In C++, you can define your classes without polymorphism
+        - This is what we've done thus far
+        - Polymorphism must be explicitly defined
+    - As we defined our classes, when we pass car into functions for vehicle, it will call the vehicle implementation methods
+
+### Inheritance and Privacy
+- When inheriting you can alter the privacy of what you inherit
+    - Public
+    - Protected
+    - Private
+- For example, if UG is a superclass of Grad and Grad inherits privately, then only Grad can call UGs methods, not the outside world
+
+#### Public Inheritance
+- What you inherit keeps its pervious states
+    - Public remains public
+    -
+- Whatever you override uses the privacy state of the inherited
+- The common case
+- When A publicly inherits from B, 
+
+TODO: FINISH
+
+#### Protected Inheritance
+- What you inherit CHANGES its previous status
+    - Public becomes protected
+    -
+- Not the default
+    - `class A : protected B`
+- When A protected inherits from B:
+    - A and its sublcasses know that they inherit from B
+    - Nobody else knows
+    - Subsumption does not work
+
+#### Private Inheritance
+- What you inherit changes its previous status
+    - Everything becomes private (public, protected, private)
+    - Whatever you override uses the privacy setting of the function
+- The default for classes
+- When A private inherits from B
+    - A knows it inherits from B
+    - A's subclasses do not know
+    - Everything else does not know
+    - Inheritance fact is completely hidden
+- Often used when you are in the mindset of "code reuse"
+    - Does not really stick with the nice theoretical overview of OO
+    - But C++ supports both
+
+### Inheritance vs Overriding
+- When A inherits from B, it:
+    - Has as all attributes of B
+    - Has all methods of B
+    - Can add attributes or methods
+    - Upgrade or refine some methods
+        - This is overriding, NOT overloading
