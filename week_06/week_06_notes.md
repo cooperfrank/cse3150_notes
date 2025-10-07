@@ -1,5 +1,10 @@
-# Four Pillars to OOP
-## Encapsulation
+# Week 6 Notes
+Cooper Frank | CSE 3150 | Prof. Justin Furuness
+
+10-02-2025, 10-07-2025
+
+## Four Pillars to OOP
+### Encapsulation
 - "has-a" relationship
     - ex. a car *has a* wheel
 - Purpose is to bind things together as a cohesive package
@@ -120,7 +125,7 @@ int main() {
 }
 ```
 
-### Example Analysis: Rectangle Object Model
+#### Example Analysis: Rectangle Object Model
 - Stack has `p`
 - `p` points to a Rectangle object on the Heap
 - `corner_` points to a shared_ptr
@@ -128,7 +133,7 @@ int main() {
 
 TODO: FINISH
 
-### Problem with this model
+#### Problem with this model
 - We can move our rectangles
 - This does not make sense, rectangles shouldn't be moving around
 - Encapsulation is easy to break
@@ -136,7 +141,7 @@ TODO: FINISH
 - We should not let a user manipulate the "guts" of the rectangle, just like how we don't let users modify the middle of a stack
 - Imagine that there is a giant box around our object, nothing should get in
 
-### The Fix
+#### The Fix
 - Simply allocate the point *in the class* on the stack!
 - Now, if getCorner is called, it returns a copy of the point, rather than an object on the heap
 - This is a much cleaner solution! Everything is colated in memory (right next to each other)
@@ -164,7 +169,7 @@ public:
 };
 ```
 
-## Inheritance
+### Inheritance
 - Promotes:
     1. Code reuse
     2. Code specialization
@@ -177,7 +182,7 @@ public:
     - Pragmatically: code reuse
     - In Theory: Type refinements (subtyping through subclasses)
 
-### Hierarchy
+#### Hierarchy
 - With each specialization
     - Requirements grow
     - The set of entities that meet those requirements shrink
@@ -185,14 +190,14 @@ public:
     - Making subsets
     - Making subtypes
 
-### Requirements
+#### Requirements
 - Can take different forms
 - Mainly:
     1. Attributes
     2. Specific behaviors
 - ex. For `Car`: Attribute of four wheels, behavior of electric charging or gas
 
-### Subtyping
+#### Subtyping
 - Let A, B be two types
     - We write A <: B to state that A is a subtype of B
 - ex. A = Car, B = Vehicle, A <: B 
@@ -246,7 +251,7 @@ int main() {
 }
 ```
 
-#### Example Analysis: Subsumption
+##### Example Analysis: Subsumption
 - Here `Car` is inheriting from `Vehicle`; this is the syntax
 - Both calls to foo are fine so long as subsumption is present
     - Even though foo expects a vehicle, we can pass a car
@@ -261,14 +266,14 @@ So why do we get "I'm a vehicle" from foo(car)?
         - Polymorphism must be explicitly defined
     - As we defined our classes, when we pass car into functions for vehicle, it will call the vehicle implementation methods
 
-### Inheritance and Privacy
+#### Inheritance and Privacy
 - When inheriting you can alter the privacy of what you inherit
     - Public
     - Protected
     - Private
 - For example, if UG is a superclass of Grad and Grad inherits privately, then only Grad can call UGs methods, not the outside world
 
-#### Public Inheritance
+##### Public Inheritance
 - What you inherit keeps its pervious states
     - Public remains public
     -
@@ -278,7 +283,7 @@ So why do we get "I'm a vehicle" from foo(car)?
 
 TODO: FINISH
 
-#### Protected Inheritance
+##### Protected Inheritance
 - What you inherit CHANGES its previous status
     - Public becomes protected
     -
@@ -289,7 +294,7 @@ TODO: FINISH
     - Nobody else knows
     - Subsumption does not work
 
-#### Private Inheritance
+##### Private Inheritance
 - What you inherit changes its previous status
     - Everything becomes private (public, protected, private)
     - Whatever you override uses the privacy setting of the function
@@ -303,10 +308,264 @@ TODO: FINISH
     - Does not really stick with the nice theoretical overview of OO
     - But C++ supports both
 
-### Inheritance vs Overriding
+#### Inheritance vs Overriding
 - When A inherits from B, it:
     - Has as all attributes of B
     - Has all methods of B
     - Can add attributes or methods
     - Upgrade or refine some methods
         - This is overriding, NOT overloading
+
+*Inheritance example: Grading Policy*
+`grading_policy.cpp`
+```cpp
+#include <ostream>
+#include <string>
+#include <iostream>
+
+class Undergraduate {
+protected:
+    std::string name_;
+    double grade_;
+
+public:
+    Undergraduate(const std::string& n, double g): name_(n), grade_(g) {}
+    const char letterGrade() const;
+    friend std::ostream& operator<<(std::ostream& os, const Undergraduate& ug) {
+        return os << "UG = (" << ug.name_ << ", " << ug.grade_ << ", " << ug.letterGrade() << ")";
+    }
+};
+
+class Graduate: public Undergraduate {
+// Has access to name_ and grade_ variables from inheritance
+public:
+    Graduate(const std::string& n, double g): Undergraduate(n, g) {}
+    const char letterGrade() const;
+    friend std::ostream& operator<<(std::ostream& os, const Graduate& g) {
+        return os << "G = (" << g.name_ << ", " << g.grade_ << ", " << g.letterGrade() << ")";
+    }
+};
+
+const char Undergraduate::letterGrade() const {
+    if (grade_ > 80 && grade_ <= 100) {
+        return 'A';
+    }
+    else {
+        return 'F';
+    }
+}
+
+const char Graduate::letterGrade() const {
+    if (grade_ > 95 && grade_ <= 100) {
+        return 'A';
+    }
+    else {
+        return 'F';
+    }
+}
+
+int main() {
+    Undergraduate s1("Bernard", 61);
+    Graduate s2("Bob", 81);
+    Undergraduate& gr = s2;
+
+    std::cout << s1 << std::endl; // UG = (Bernard, 61, F)
+    std::cout << s2 << std::endl; // G = (Bob, 81, F)
+    std::cout << gr << std::endl; // UG = (Bob, 81, A)
+}
+```
+
+- We see again that polymorphism is NOT the default in C++
+    - Polymorphism is expensive
+
+#### Dynamic Binding (`virtual`)
+- We have inheritance and lack polymorphism. The solution is dynamic binding
+- We have compile time polymorphism
+    - Method overloading
+    - Template functions and classes
+- Now, we talk about RUNTIME polymorphism
+    - This is dynamic binding of overridden (NOT overloading) methods
+- Purpose: Provide the ability to respond to messages based on the dynamic type rather than the compile time type
+    - In Java and Python, this is the default
+- `virtual` keyword switches the method from static binding (compile-time types) to dynamic binding (runtime types)
+
+```cpp
+class Undergraduate {
+protected:
+    std::string name_;
+    double grade_;
+
+public:
+    Undergraduate(const std::string& n, double g): name_(n), grade_(g) {}
+    virtual const char letterGrade() const; // Added virtual keyword; all child classes will have this as virtual method
+    virtual std::string kind() const { // Added virtual keyword; all child classes will have this as virtual method
+        return "Undergraduate";
+    }
+    friend std::ostream& operator<<(std::ostream& os, const Undergraduate& ug) {
+        return os << ug.kind() << " = (" << ug.name_ << ", " << ug.grade_ << ", " << ug.letterGrade() << ")";
+    }
+};
+
+class Graduate: public Undergraduate {
+// Has access to name_ and grade_ variables from inheritance
+public:
+    Graduate(const std::string& n, double g): Undergraduate(n, g) {}
+    virtual const char letterGrade() const; // Could also remove virtual keyword since parent class has it defined as virtual
+    virtual std::string kind() const { // Could also remove virtual keyword since parent class has it defined as virtual
+        return "Graduate";
+    }
+    // We use inheritance for operator<<
+};
+```
+
+#### Tricky Inheritance
+- Space usage and memory layout
+- Overload and overrides
+- Deallocation
+- Multiple Inheritance
+- Diamond Inheritance
+
+##### Space and Memory
+An object contains:
+
+- (Optionally) A VPTR, which is a pointer to a table containing pointers to dynamically bound methods
+- A collection of fields for attributes
+
+```cpp
+class X {
+    int a_;
+    double b_;
+    std::string c_;
+public:
+    X();
+    virtual std::string getName();
+    int getA();
+};
+```
+
+###### 1. Class `X` Memory Layout (With Dynamic Binding (`virtual`))
+
+| **Memory Layout** | **Description**                                          |
+| ----------------- | -------------------------------------------------------- |
+| **VPTR**          | Pointer to VTABLE for class `X` (dynamic dispatch table) |
+| **a_**            | `int` field of object                                    |
+| **b_**            | `double` field of object                                 |
+| **c_**            | `std::string` field of object                            |
+
+**VTABLE for `X`:**
+
+| **VTABLE**  | **Points to**             |
+| ----------- | ------------------------- |
+| `getName()` | Address of `X::getName()` |
+
+###### 2. Class `X` Memory Layout (Static Binding (no `virtual`))
+
+| **Memory Layout** | **Description**               |
+| ----------------- | ----------------------------- |
+| **a_**            | `int` field of object         |
+| **b_**            | `double` field of object      |
+| **c_**            | `std::string` field of object |
+
+**Method calls:** Resolved *statically* at compile-time; no table involved.
+
+###### Summary of Differences
+
+| Feature                    | Virtual (Dynamic) | Non-Virtual (Static) |
+| -------------------------- | ----------------- | -------------------- |
+| Table pointer (VPTR)       | Yes               | No                   |
+| Method table (VTABLE)      | Yes               | No                   |
+| Method resolution          | Runtime           | Compile-time         |
+| Memory overhead per object | +size of pointer, size of lookup table  | None                 |
+
+
+##### Overloading vs. Overriding
+```cpp
+#include <iostream>
+
+class B {
+public:
+    virtual void f(short a) {
+        std::cout << "In B" << std::endl;
+    }
+};
+
+class C: public B {
+    virtual void f(int a) { // (!) Overloaded, not overwritten; parameters are different
+        std::cout << "In C" << std::endl;
+    }
+    // Overwritten with keyword override, will raise compiler error if it's not overriding to catch overloading mistakes
+    // Keyword final denotes that this function cannot be overridden by a child class
+    virtual void f(short a) override final { 
+        std::cout << "In C" << std::endl;
+    }
+};
+
+class D: public C {
+    void f(int) override { // Will throw error, cannot override final function from C
+        std::cout << "In D" << std::endl;
+    }
+}
+
+int main() {
+    B* aPtr = new C;
+    aPtr->f(1); // Prints "In C"
+    delete aPtr;
+    return 0;
+}
+```
+
+##### Deallocation
+Consider an example where class D inherits from class C which inherits from class B which inherits from class A:
+
+- When you call delete on a pointer to A and the actual object is of type D, C++ ensures all destructors run correctly
+- If A's destrictor is virtual, then
+    - The destructor of D is invoked first
+    - After D frees its members, C's destructor runs
+    - Then B's destructor
+    - Finally, A's destructor
+- Each class only cleans up its own members, the chain ensures the entire object is safely destroyed
+- Without a virtual destructor in A, only A's destructor runs, which leads to resource leaks
+
+`grading_policy.cpp`
+```cpp
+#include <ostream>
+#include <string>
+#include <iostream>
+
+class Undergraduate {
+protected:
+    std::string name_;
+    double grade_;
+
+public:
+    Undergraduate(const std::string& n, double g): name_(n), grade_(g) {}
+    virtual ~Undergraduate() {}; // Allows destructor chain
+    const char letterGrade() const;
+};
+
+class Graduate: public Undergraduate {
+public:
+    Graduate(const std::string& n, double g): Undergraduate(n, g) {}
+    const char letterGrade() const;
+    
+};
+
+const char Undergraduate::letterGrade() const {
+    // ...
+}
+
+const char Graduate::letterGrade() const {
+    // ...
+}
+
+int main() {
+    Undergraduate s1("Bernard", 61);
+    Undergraduate* s2 = new Grad("Billy", 67)
+
+    std::cout << s1 << std::endl; 
+    std::cout << s2 << std::endl; 
+
+    delete s2;
+    return 0;
+}
+```
